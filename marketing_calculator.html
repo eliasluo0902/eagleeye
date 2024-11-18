@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>行銷儲值試算器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      background-color: #ffffff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+      color: #000000;
+    }
+    td:first-child {
+      color: #000000;
+    }
+    input {
+      width: 100px;
+      text-align: right;
+    }
+    .result {
+      color: #007BFF;
+      font-weight: bold;
+    }
+    .highlight {
+      background-color: #f9f9f9;
+    }
+    .plan-text {
+      color: #000000;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="color: #000000;">行銷儲值試算器</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>行銷渠道</th>
+        <th>儲值金額</th>
+        <th>單價計算（元/封）</th>
+        <th>換算封數</th>
+        <th>報價金額（含稅）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Email</td>
+        <td><input type="number" id="emailValue" placeholder="輸入金額"></td>
+        <td class="result" id="emailUnitPrice">0.10</td>
+        <td class="result" id="emailCount">0</td>
+        <td class="result" id="emailTax">0</td>
+      </tr>
+      <tr>
+        <td>簡訊</td>
+        <td><input type="number" id="smsValue" placeholder="輸入金額"></td>
+        <td class="result" id="smsUnitPrice">2.00</td>
+        <td class="result" id="smsCount">0</td>
+        <td class="result" id="smsTax">0</td>
+      </tr>
+      <tr class="highlight">
+        <td>合計</td>
+        <td class="result" id="totalValue">0</td>
+        <td class="plan-text" id="plan">方案</td>
+        <td class="result" id="totalCount">0</td>
+        <td class="result" id="totalTax">0</td>
+      </tr>
+    </tbody>
+  </table>
+  <button onclick="calculate()">點我計算</button>
+
+  <script>
+    // 格式化數字（儲值金額為整數）
+    function formatInteger(num) {
+      return parseInt(num).toLocaleString("en-US");
+    }
+    // 格式化數字（保留一位小數）
+    function formatDecimal(num) {
+      return parseFloat(num).toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+
+    function calculate() {
+      // 取得 Email 和簡訊的輸入值（儲值金額無小數點）
+      const emailValue = parseInt(document.getElementById('emailValue').value) || 0;
+      const smsValue = parseInt(document.getElementById('smsValue').value) || 0;
+
+      // 單價計算規則（根據合計金額）
+      let emailUnitPrice = 0.10;
+      let smsUnitPrice = 2.00;
+      let plan = "方案"; // 預設顯示「方案」
+      const totalValue = emailValue + smsValue;
+      if (totalValue > 0 && totalValue < 100000) {
+        plan = "低用量方案";
+      } else if (totalValue >= 100000) {
+        emailUnitPrice = 0.05;
+        smsUnitPrice = 1.50;
+        plan = "高用量方案";
+      }
+
+      // 計算含稅金額和換算封數
+      const emailTax = emailValue * 1.05;
+      const emailCount = emailValue / emailUnitPrice; // Email 換算封數動態連動
+      const smsTax = smsValue * 1.05;
+      const smsCount = smsValue / smsUnitPrice; // 簡訊換算封數動態連動
+
+      // 合計換算封數和含稅金額
+      const totalTax = emailTax + smsTax;
+      const totalCount = emailCount + smsCount;
+
+      // 更新 Email 資料
+      document.getElementById('emailTax').textContent = formatDecimal(emailTax);
+      document.getElementById('emailCount').textContent = formatDecimal(emailCount);
+      document.getElementById('emailUnitPrice').textContent = emailUnitPrice.toFixed(2);
+
+      // 更新 簡訊 資料
+      document.getElementById('smsTax').textContent = formatDecimal(smsTax);
+      document.getElementById('smsCount').textContent = formatDecimal(smsCount);
+      document.getElementById('smsUnitPrice').textContent = smsUnitPrice.toFixed(2);
+
+      // 更新合計資料
+      document.getElementById('totalValue').textContent = formatInteger(totalValue);
+      document.getElementById('totalCount').textContent = formatDecimal(totalCount);
+      document.getElementById('totalTax').textContent = formatDecimal(totalTax);
+
+      // 更新方案顯示
+      document.getElementById('plan').textContent = plan; // 即時顯示方案
+    }
+  </script>
+</body>
+</html>
